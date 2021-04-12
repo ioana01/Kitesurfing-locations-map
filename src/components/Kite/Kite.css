@@ -12,9 +12,9 @@
 
 #buttonWrapper {
     position: absolute;
-    left: 90%;
-    top: 20px;
-    width: 10%;
+    left: 85%;
+    top: 40px;
+    width: 150px;
 
     z-index: 9999;
 }
@@ -30,11 +30,6 @@
 #filterButton:hover {
     background-color: rgb(219, 216, 216);
     cursor: pointer;
-}
-
-#popup {
-    /* background-color: aqua; */
-    /* width: 100%; */
 }
 
 .location {
@@ -130,6 +125,10 @@ table, td {
     border-collapse: collapse;
 }
 
+#tableDiv {
+    overflow-x:auto;
+}
+
 #spotsTable td, #spotsTable th {
     border: 1px solid #ddd;
     padding: 8px;
@@ -158,4 +157,26 @@ table, td {
 
     font-size: 25px;
     font-weight: 700;
+}
+
+@media (max-width: 600px) {
+    #searchContainer {
+        width: 60%;
+    }
+
+    #buttonWrapper {
+        left: 70%;
+        width: 35%;
+    }
+}
+
+@media (min-width: 601px) and (max-width: 1000px) {
+    #searchContainer {
+        width: 45%;
+    }
+
+    #buttonWrapper {
+        left: 70%;
+        width: 25%;
+    }
 }

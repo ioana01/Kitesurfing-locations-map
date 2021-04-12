@@ -8,6 +8,7 @@
     color: white;
     border: 1px solid #ccc;
     border-radius: 5px;
+    font-size: 15px;
 
     padding: 5px 20px;
     margin-right: 20px;
@@ -20,4 +21,19 @@
 
 #lineBtn:hover {
     cursor: pointer;
+}
+
+.profile:hover {
+    background-color: #ccc;
+    border-radius: 5px;
+}
+
+#logoutButton:focus {
+    background-color: #ccc;
+}
+
+@media(max-width: 500px) {
+    #logoutButton:focus {
+        background-color: #ccc;
+    }
 }

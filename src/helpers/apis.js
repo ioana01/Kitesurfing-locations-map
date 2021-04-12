@@ -12,7 +12,7 @@ export const deleteSpotUrl = config.apiUrl + '/spot/'
 export const postFavoriteSpotUrl = config.apiUrl + '/favourites'
 export const deleteFavoriteUrl = config.apiUrl + '/favourites/'
 
-export function postLogin(loginParams, success, failure) {
+export function postLogin(loginParams, success) {
     axios({
           method: 'post',
           url: postLoginUrl,
@@ -22,11 +22,10 @@ export function postLogin(loginParams, success, failure) {
           }
     })
     .then((response) => {
-        success(response);
-        console.log(response);
+        success();
     }, (error) => {
         console.log(error);
-        failure(error);
+        // failure(error);
     });
 }
 

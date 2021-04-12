@@ -20,8 +20,6 @@ class Login extends Component {
 
         this.loginToServer = this.loginToServer.bind(this);
         this.handleChange = this.handleChange.bind(this);
-        this.setSubmissionSuccess = this.setSubmissionSuccess.bind(this);
-        this.setSubmissionFail = this.setSubmissionFail.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.redirectToKite = this.redirectToKite.bind(this);
     }
@@ -36,32 +34,28 @@ class Login extends Component {
             username: this.state.username.value,
             password: this.state.password.value
         };
-        alert(this.state.username.value);
-        alert(this.state.password.value)
 
-        postLogin(loginParams, this.setSubmissionSuccess, this.setSubmissionFail);
+        if(document.getElementById("username").value  && document.getElementById("password").value) {
+            postLogin(loginParams, this.redirectToKite, this.setSubmissionFail);
+        } else {
+            if(!document.getElementById("username").value) {
+                alert("Please insert your username");
+            } else if(!document.getElementById("password").value) {
+                alert("Please insert your password");
+            } else {
+                alert("Please insert your credentials");
+            }
+        }
+        
 	}
-
-    setSubmissionFail = function(response) {
-        // this.showFailedLogin();
-    }
-
-    setSubmissionSuccess = function(response) {
-        // const {token} = response.data;
-        // localStorage.setItem('token', token);
-        // this.props.updatePersonalInfo();
-        // this.showSuccesfulLogin();
-        this.redirectToKite();
-    }
 
     redirectToKite() {
         setTimeout(() => {
             window.location.href = "/kite";
-        }, 1000);
+        }, 100);
     }
 
     handleChange = input => e => {
-        console.log('handle change');
         let newData = {
             value: e.target.value,
             error: this.state[input].error

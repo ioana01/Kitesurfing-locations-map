@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
 import './Kite.css'
 import Navbar from '../Navbar/Navbar'
-import { getSpotList, getSpotInfo , postNewSpot, getFavoritesList, deleteSpotRequest, postFavoriteSpot, deleteFavoriteSpot } from '../../helpers/apis';
-import $, { post } from 'jquery';
-import {Icon} from 'leaflet'
+import { getSpotList, 
+        getSpotInfo , 
+        postNewSpot, 
+        getFavoritesList, 
+        deleteSpotRequest, 
+        postFavoriteSpot, 
+        deleteFavoriteSpot } from '../../helpers/apis';
 import Star from './star.png'
 
 class Kite extends Component {
@@ -27,6 +31,8 @@ class Kite extends Component {
         this.search = this.search.bind(this);
         this.applyFilter = this.applyFilter.bind(this);
         this.switchFavorite = this.switchFavorite.bind(this);
+        this.hideBtn = this.hideBtn.bind(this);
+        this.showBtn = this.showBtn.bind(this);
     }
 
     componentDidMount () {
@@ -53,7 +59,6 @@ class Kite extends Component {
             this.insertSpotInTable(pinList[i]);
         }
 
-        console.log(this.state.favorites);
         for(let i = 0; i < pinList.length; i++) {
             for(let j = 0; j < this.state.favorites.length; j++) {
                 if(pinList[i].id == this.state.favorites[j].id) {
@@ -87,7 +92,7 @@ class Kite extends Component {
     addPinPoint(data) {
         let marker = this.state.L.marker([data.lat, data.long])
             .addTo(this.state.map)
-            .bindPopup(`<div id="popup"> \
+            .bindPopup(`<div class="popup"> \
                             <h6 class="location">${data.name}</h6>  \
                             <p id="countryName">${data.country}</p>  \
                             <div> \
@@ -333,6 +338,14 @@ class Kite extends Component {
         }
     }
 
+    hideBtn() {
+        document.getElementById("filterButton").style.display = "none";
+    }
+
+    showBtn() {
+        document.getElementById("filterButton").style.display = "";
+    }
+
     render() {
         return(
             <>
@@ -340,7 +353,7 @@ class Kite extends Component {
                 <div id="mapWrapper">
                     <div id="mapid"></div>
                     <div id="buttonWrapper">
-                        <button id="filterButton" type="button" data-toggle="modal" data-target="#myModalFilter">
+                        <button id="filterButton" onClick={this.hideBtn} type="button" data-toggle="modal" data-target="#myModalFilter">
                             <span>
                                 <ion-icon name="filter-outline"></ion-icon>
                             </span>
@@ -351,7 +364,7 @@ class Kite extends Component {
                         <div class="modal-dialog modal-sm">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <button onClick={this.showBtn} type="button" class="close" data-dismiss="modal">&times;</button>
                                 </div>
                                 <div class="modal-body">
                                     <form className="formFields">
@@ -445,17 +458,19 @@ class Kite extends Component {
                         <ion-icon name="search-outline"></ion-icon>
                     </span>
                 </div>
-                <table id="spotsTable">
-                    <tr>
-                        <th onClick={() => this.sortTable(0)}>Name</th>
-                        <th onClick={() => this.sortTable(1)}>Country</th>
-                        <th onClick={() => this.sortTable(2)}>Latitude</th>
-                        <th onClick={() => this.sortTable(3)}>Longitude</th>
-                        <th onClick={() => this.sortTable(4)}>Wind Prob.</th>
-                        <th onClick={() => this.sortTable(5)}>When to go</th>
-                    </tr>
-                    
-                </table>
+                <div id="tableDiv">
+                    <table id="spotsTable">
+                        <tr>
+                            <th onClick={() => this.sortTable(0)}>Name</th>
+                            <th onClick={() => this.sortTable(1)}>Country</th>
+                            <th onClick={() => this.sortTable(2)}>Latitude</th>
+                            <th onClick={() => this.sortTable(3)}>Longitude</th>
+                            <th onClick={() => this.sortTable(4)}>Wind Prob.</th>
+                            <th onClick={() => this.sortTable(5)}>When to go</th>
+                        </tr>
+                        
+                    </table>
+                </div>
             </>
         );
     };

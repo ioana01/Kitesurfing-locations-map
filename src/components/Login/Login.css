@@ -27,8 +27,6 @@
     width: 30%;
     margin-top: 40px;
     margin-left: 35%;
-    /* text-align: center;
-    align-items: center; */
 }
 
 #loginBtn:hover {
@@ -44,4 +42,22 @@
 
 .formLabel {
     text-align: left;
+}
+
+@media (max-width: 500px) {
+    #loginBtn {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    #loginContainer {
+        width: 80%;
+    }
+}
+
+@media (max-width: 1000px) {
+    #loginBtn {
+        width: 60%;
+        margin-left: 20%;
+    }
 }
