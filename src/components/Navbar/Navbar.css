@@ -1,0 +1,23 @@
+#kite {
+    font-family: Calligraffitti;
+    font-size: 30px;
+}
+
+#addSpot {
+    background-color: #5abeec;
+    color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+
+    padding: 5px 20px;
+    margin-right: 20px;
+}
+
+#addSpot:hover {
+    background-color: #32a3d8;
+    cursor: pointer;
+}
+
+#lineBtn:hover {
+    cursor: pointer;
+}
