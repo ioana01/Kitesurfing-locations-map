@@ -1,4 +1,4 @@
-#loginContainer {
+#Container {
     margin: 0;
     position: absolute;
     top: 50%;
@@ -11,7 +11,7 @@
 }
 
 .formInput,
-#loginBtn {
+#sendBtn {
     width: 100%;
     padding: 10px 20px;
     margin: 10px 0;
@@ -21,7 +21,7 @@
     box-sizing: border-box;
 }
 
-#loginBtn {
+#sendBtn {
     background-color: #5abeec;
 
     width: 30%;
@@ -29,7 +29,7 @@
     margin-left: 35%;
 }
 
-#loginBtn:hover {
+#sendBtn:hover {
     background-color: #32a3d8;
     cursor: pointer;
 }
@@ -45,19 +45,23 @@
 }
 
 @media (max-width: 500px) {
-    #loginBtn {
+    #sendBtn {
         width: 100%;
         margin-left: 0;
     }
 
-    #loginContainer {
+    #Container {
         width: 80%;
     }
 }
 
 @media (max-width: 1000px) {
-    #loginBtn {
+    #sendBtn {
         width: 60%;
         margin-left: 20%;
     }
+}
+
+#registerLink {
+    color: black;
 }

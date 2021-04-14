@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
-import './Login.css';
+import './FormPage.css';
 import { postLogin } from '../../helpers/apis';
+import {
+    BrowserRouter as Router,
+    Redirect
+} from "react-router-dom";
 
 class Login extends Component {
     constructor(props) {
@@ -8,20 +12,20 @@ class Login extends Component {
         this.state = {
             username: {
                 value: "",
-                error: "Pune la dispoziție un numele de utilizator"
+                error: "Pune la dispoziție un nume de utilizator"
             },
             password: {
                 value: "",
                 error: "Completează parola pentru acest cont"
             },
-            loginError: "",
-            resetError: ""
+            id: -1
         };
 
         this.loginToServer = this.loginToServer.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.redirectToKite = this.redirectToKite.bind(this);
+        this.setUserId = this.setUserId.bind(this);
+        this.redirectToRegister = this.redirectToRegister.bind(this);
     }
 
     handleSubmit(event) {
@@ -36,12 +40,12 @@ class Login extends Component {
         };
 
         if(document.getElementById("username").value  && document.getElementById("password").value) {
-            postLogin(loginParams, this.redirectToKite, this.setSubmissionFail);
+            postLogin(loginParams, this.setUserId);
         } else {
             if(!document.getElementById("username").value) {
-                alert("Please insert your username");
+                alert(this.state.username.error);
             } else if(!document.getElementById("password").value) {
-                alert("Please insert your password");
+                alert(this.state.password.error);
             } else {
                 alert("Please insert your credentials");
             }
@@ -49,9 +53,13 @@ class Login extends Component {
         
 	}
 
-    redirectToKite() {
+    setUserId(response) {
+        this.setState({id: response.data.id});
+    }
+
+    redirectToRegister() {
         setTimeout(() => {
-            window.location.href = "/kite";
+            window.location.href = "/register";
         }, 100);
     }
 
@@ -64,11 +72,19 @@ class Login extends Component {
     };
 
     render() {
+        if(this.state.id !== -1) {
+            let id = this.state.id;
+            return <Redirect
+                        to={{
+                        pathname: "kite",
+                        state: { id: id }}}/>
+        }
+
         return (
-            <div id="loginContainer">
+            <div id="Container">
                 <h1 id="title">Kite</h1>
                 <form className="formFields">
-                    <label className="formLabel" for="username">Username</label>
+                    <label className="formLabel">Username</label>
                     <input className="formInput" 
                             value={this.state.username.value} 
                             onChange={this.handleChange('username')}
@@ -77,7 +93,7 @@ class Login extends Component {
                             name="username" 
                             placeholder="Your username.."></input>
 
-                    <label className="formLabel" for="password">Password</label>
+                    <label className="formLabel">Password</label>
                     <input className="formInput" 
                             value={this.state.password.value} 
                             onChange={this.handleChange('password')}
@@ -85,8 +101,8 @@ class Login extends Component {
                             id="password" 
                             name="password" 
                             placeholder="Your password.."></input>
-                
-                    <input id="loginBtn" onClick={this.handleSubmit} type="submit" value="Login"></input>
+                    <p>Don't have an account yet? <a href="#" id="registerLink" onClick={this.redirectToRegister}>Register</a></p>
+                    <input id="sendBtn" onClick={this.handleSubmit} type="submit" value="Login"></input>
                 </form>
             </div>
         )

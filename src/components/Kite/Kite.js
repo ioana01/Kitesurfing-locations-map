@@ -7,18 +7,27 @@ import { getSpotList,
         getFavoritesList, 
         deleteSpotRequest, 
         postFavoriteSpot, 
-        deleteFavoriteSpot } from '../../helpers/apis';
+        deleteFavoriteSpot,
+        updateUser,
+        updateSpot,
+        updateFavoriteSpot } from '../../helpers/apis';
+import {
+    BrowserRouter as Router,
+    Redirect
+} from "react-router-dom";
 import Star from './star.png'
 
 class Kite extends Component {
-    constructor(params) {
-        super(params);
+    constructor(props) {
+        super(props);
         this.state = {
             spotList: [],
             favorites: [],
             L: "",
             map: "",
-            markers: []
+            markers: [],
+            id: -1,
+            userInfo: {}
         };
 
         this.showPinPoints = this.showPinPoints.bind(this);
@@ -33,42 +42,47 @@ class Kite extends Component {
         this.switchFavorite = this.switchFavorite.bind(this);
         this.hideBtn = this.hideBtn.bind(this);
         this.showBtn = this.showBtn.bind(this);
+        this.setUserInfo = this.setUserInfo.bind(this);
     }
 
     componentDidMount () {
         getFavoritesList(this.showFavoriteSpots);
         getSpotList(this.showPinPoints);
+
+        if(this.props.location.state) {
+            this.setState({id: this.props.location.state.id});
+        }
     }
 
     showPinPoints(pinList) {
-        this.setState({spotList: pinList});
-        console.log(this.state.spotList);
+        if(this.props.location.state) {
+            this.setState({spotList: pinList});
 
-        let L = window.L;
-        let map = L.map('mapid').setView([45.9443, 25.0094], 2);
+            let L = window.L;
+            let map = L.map('mapid').setView([45.9443, 25.0094], 2);
 
-        this.setState({L: L});
-        this.setState({map: map});
+            this.setState({L: L});
+            this.setState({map: map});
 
-        this.state.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(this.state.map);
+            this.state.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(this.state.map);
 
-        for(let i = 0; i < pinList.length; i++) {
-            this.addPinPoint(pinList[i]);
-            this.insertSpotInTable(pinList[i]);
-        }
+            for(let i = 0; i < pinList.length; i++) {
+                this.addPinPoint(pinList[i]);
+                this.insertSpotInTable(pinList[i]);
+            }
 
-        for(let i = 0; i < pinList.length; i++) {
-            for(let j = 0; j < this.state.favorites.length; j++) {
-                if(pinList[i].id == this.state.favorites[j].id) {
-                    // this.switchFavorite(this.state.markers[i], pinList[i], "Add"+pinList[i].id);
+            for(let i = 0; i < pinList.length; i++) {
+                for(let j = 0; j < this.state.favorites.length; j++) {
+                    if(pinList[i].id === this.state.favorites[j].id) {
+                        // this.switchFavorite(this.state.markers[i], pinList[i], "Add"+pinList[i].id);
+                    }
                 }
             }
         }
     }
 
-    // TODO: validare date 
     addSpot() {
         let newData = {
             "id": (parseInt(this.state.spotList[this.state.spotList.length - 1].id) + 1).toString(),
@@ -79,14 +93,24 @@ class Kite extends Component {
             "month": document.getElementById("month").value,
             "probability": document.getElementById("probability").value,
         }
-        postNewSpot(newData);
 
-        let newList = this.state.spotList;
-        newList.push(newData);
-        this.setState({spotList: newList});
+        if(!document.getElementById("name").value || 
+            !document.getElementById("country").value ||
+            !document.getElementById("latitude").value ||
+            !document.getElementById("longitude").value ||
+            !document.getElementById("month").value ||
+            !document.getElementById("probability").value) {
+            alert("Completarea tuturor campurilor e necesara");
+        } else {
+            postNewSpot(newData);
 
-        this.addPinPoint(newData);
-        this.insertSpotInTable(newData);
+            let newList = this.state.spotList;
+            newList.push(newData);
+            this.setState({spotList: newList});
+
+            this.addPinPoint(newData);
+            this.insertSpotInTable(newData);
+        }
     }
 
     addPinPoint(data) {
@@ -124,7 +148,7 @@ class Kite extends Component {
         let i, j;
         for(i = 0; i < this.state.spotList.length; i++) {
             for(j = 0; j < this.state.favorites.length; j++) {
-                if(this.state.favorites[j].id == data.id) {
+                if(this.state.favorites[j].id === data.id) {
                     marker.setIcon(starIcon);
                 }
             }
@@ -144,7 +168,7 @@ class Kite extends Component {
     }
 
     switchFavorite(marker, data, id) {
-        if(document.getElementById(id).innerHTML.localeCompare("ADD TO FAVORITES") == 0) {
+        if(document.getElementById(id).innerHTML.localeCompare("ADD TO FAVORITES") === 0) {
             document.getElementById(id).style.backgroundColor = 'rgb(' + [233,61,61].join(',') + ')';
             document.getElementById(id).innerHTML = "REMOVE FROM FAVORITES";
 
@@ -192,32 +216,31 @@ class Kite extends Component {
         for(i = 1; i < 2; i++) {
             check = 0;
             td = rows[i].getElementsByTagName("TD");
-            console.log(td);
 
             for(j = 0; j < td.length; j++) {
                 txtValue = td[j].textContent || td[j].innerText;
 
-                if(j == 0 && txtValue == data.name) {
+                if(j === 0 && txtValue === data.name) {
                     check++;
                 }
-                if(j == 1 && txtValue == data.country) {
+                if(j === 1 && txtValue === data.country) {
                     check++;
                 }
-                if(j == 2 && txtValue == data.lat) {
+                if(j === 2 && txtValue === data.lat) {
                     check++;
                 }
-                if(j == 3 && txtValue == data.long) {
+                if(j === 3 && txtValue === data.long) {
                     check++;
                 }
-                if(j == 4 && txtValue == data.probability) {
+                if(j === 4 && txtValue === data.probability) {
                     check++;
                 }
-                if(j == 5 && txtValue == data.month) {
+                if(j === 5 && txtValue === data.month) {
                     check++;
                 }
             }
 
-            if(check == 6) {
+            if(check === 6) {
                 document.getElementById("spotsTable").deleteRow(i);
             }
         }
@@ -247,9 +270,8 @@ class Kite extends Component {
     }
 
     sortTable(n) {
-        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        let table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
         table = document.getElementById("spotsTable");
-        console.log("apasat");
 
         if(table) {
             switching = true;
@@ -264,12 +286,12 @@ class Kite extends Component {
                     x = rows[i].getElementsByTagName("TD")[n];
                     y = rows[i + 1].getElementsByTagName("TD")[n];
 
-                    if (dir == "asc") {
+                    if (dir === "asc") {
                         if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
                             shouldSwitch= true;
                             break;
                         }
-                    } else if (dir == "desc") {
+                    } else if (dir === "desc") {
                         if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
                             shouldSwitch = true;
                             break;
@@ -281,7 +303,7 @@ class Kite extends Component {
                     switching = true;
                     switchcount ++;      
                 } else {
-                    if (switchcount == 0 && dir == "asc") {
+                    if (switchcount === 0 && dir === "asc") {
                         dir = "desc";
                         switching = true;
                     }
@@ -328,14 +350,16 @@ class Kite extends Component {
         let wind = document.getElementById("windProbFilter").value;
 
         for(i = 0; i < this.state.spotList.length; i++) {
-            if(country && this.state.spotList[i].country.toUpperCase() != country.toUpperCase()) {
+            if(country && this.state.spotList[i].country.toUpperCase() !== country.toUpperCase()) {
                this.state.map.removeLayer(this.state.markers[i]);
             }
 
-            if(wind && this.state.spotList[i].probability != wind) {
+            if(wind && this.state.spotList[i].probability !== wind) {
                 this.state.map.removeLayer(this.state.markers[i]);
             }
         }
+
+        this.showBtn();
     }
 
     hideBtn() {
@@ -346,10 +370,23 @@ class Kite extends Component {
         document.getElementById("filterButton").style.display = "";
     }
 
+    setUserInfo(data) {
+        this.setState({userInfo: data});
+        console.log(data);
+
+        document.getElementById("userId").innerHTML = data.id;
+        document.getElementById("userName").innerHTML = data.name;
+        document.getElementById("userEmail").innerHTML = data.email;
+    }
+
     render() {
+        if(!this.props.location.state && !this.state.userInfo) {
+            return <Redirect to={{pathname: "/login"}}/>
+        }
+
         return(
             <>
-                <Navbar/>
+                <Navbar userId={this.state.id} setUserInfo={this.setUserInfo}/>
                 <div id="mapWrapper">
                     <div id="mapid"></div>
                     <div id="buttonWrapper">
@@ -360,22 +397,23 @@ class Kite extends Component {
                             Filters 
                         </button>
                     </div>
-                    <div class="modal fade" id="myModalFilter" role="dialog">
-                        <div class="modal-dialog modal-sm">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button onClick={this.showBtn} type="button" class="close" data-dismiss="modal">&times;</button>
+                    
+                    <div className="modal fade" id="myModalFilter" role="dialog">
+                        <div className="modal-dialog modal-sm">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <button onClick={this.showBtn} type="button" className="close" data-dismiss="modal">&times;</button>
                                 </div>
-                                <div class="modal-body">
+                                <div className="modal-body">
                                     <form className="formFields">
-                                        <label className="filterLabel" for="country">Country</label>
+                                        <label className="filterLabel">Country</label>
                                         <input className="filterInput" 
                                                 type="text" 
                                                 id="countryFilter" 
                                                 name="country"
                                                 placeholder="Country..."></input>
 
-                                        <label className="filterLabel" for="country">Wind probability</label>
+                                        <label className="filterLabel">Wind probability</label>
                                         <input className="filterInput" 
                                                 type="text" 
                                                 id="windProbFilter" 
@@ -384,77 +422,94 @@ class Kite extends Component {
 
                                     </form>
                                 </div>
-                                <div class="modal-footer">
-                                    <button onClick={this.applyFilter} type="button" class="btn btn-default apply" data-dismiss="modal">Apply filter</button>
+                                <div className="modal-footer">
+                                    <button onClick={this.applyFilter} type="button" className="btn btn-default apply" data-dismiss="modal">Apply filter</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal fade" id="myModal" role="dialog">
-                    <div class="modal-dialog modal-sm">
-                        <div class="modal-content">
-                            {/* <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            </div> */}
+                <div className="modal fade" id="myModalInfo" role="dialog">
+                    <div className="modal-dialog modal-sm">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <button type="button" className="close" data-dismiss="modal">&times;</button>
+                            </div>
+
                             <div class="modal-body">
+                                <label className="dataLabel">Id</label>
+                                <p className="dataInput" id="userId"></p>
+
+                                <label className="dataLabel">Name</label>
+                                <p className="dataInput" id="userName"></p>
+
+                                <label className="dataLabel">Email</label>
+                                <p className="dataInput" id="userEmail"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="modal fade" id="myModal" role="dialog">
+                    <div className="modal-dialog modal-sm">
+                        <div className="modal-content">
+                            <div className="modal-body">
                                 <h4>Add Spot</h4>
                                 <form className="formFields">
-                                    <label className="addSpotLabel" for="country">Name</label>
-                                    <input className="addSpotInput" 
+                                    <label className="dataLabel">Name</label>
+                                    <input className="dataInput" 
                                             type="text" 
                                             id="name" 
                                             name="name"
                                             placeholder="Name..."></input>
 
-                                    <label className="addSpotLabel" for="country">Country</label>
-                                    <input className="addSpotInput" 
+                                    <label className="dataLabel">Country</label>
+                                    <input className="dataInput" 
                                             type="text" 
                                             id="country" 
                                             name="country"
                                             placeholder="Country..."></input>
 
-                                    <label className="addSpotLabel" for="longitude">Longitude</label>
-                                    <input className="addSpotInput" 
+                                    <label className="dataLabel">Longitude</label>
+                                    <input className="dataInput" 
                                             type="text" 
                                             id="longitude" 
                                             name="longitude"
                                             placeholder="Longitude..."></input>
 
-                                    <label className="addSpotLabel" for="latitude">Latitude</label>
-                                    <input className="addSpotInput" 
+                                    <label className="dataLabel">Latitude</label>
+                                    <input className="dataInput" 
                                             type="text" 
                                             id="latitude" 
                                             name="latitude" 
                                             placeholder="Latitude..."></input>
                                     
-                                    <label className="addSpotLabel" for="month">When to go</label>
-                                    <input className="addSpotInput" 
+                                    <label className="dataLabel">When to go</label>
+                                    <input className="dataInput" 
                                             type="text" 
                                             id="month" 
                                             name="month" 
                                             placeholder="Month..."></input>
 
-                                    <label className="addSpotLabel" for="probability">Probability</label>
-                                    <input className="addSpotInput" 
+                                    <label className="dataLabel">Probability</label>
+                                    <input className="dataInput" 
                                             type="text" 
                                             id="probability" 
                                             name="probability" 
                                             placeholder="Probability..."></input>
                                 </form>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-default cancel" data-dismiss="modal">Cancel</button>
-                                <button onClick={this.addSpot} type="button" class="btn btn-default confirm" data-dismiss="modal">Confirm</button>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-default cancel" data-dismiss="modal">Cancel</button>
+                                <button onClick={this.addSpot} type="button" className="btn btn-default confirm" data-dismiss="modal">Confirm</button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="input-group rounded" id="searchContainer">
+                <div className="input-group rounded" id="searchContainer">
                     <label id="searchLabel">Locations</label> 
-                    <input id="searchInput" onKeyUp={this.search} type="search" class="form-control rounded" placeholder="Search" aria-label="Search"
+                    <input id="searchInput" onKeyUp={this.search} type="search" className="form-control rounded" placeholder="Search" aria-label="Search"
                         aria-describedby="search-addon" />
-                    <span class="input-group-text border-0" id="search-addon">
+                    <span className="input-group-text border-0" id="search-addon">
                         <ion-icon name="search-outline"></ion-icon>
                     </span>
                 </div>
