@@ -372,7 +372,6 @@ class Kite extends Component {
 
     setUserInfo(data) {
         this.setState({userInfo: data});
-        console.log(data);
 
         document.getElementById("userId").innerHTML = data.id;
         document.getElementById("userName").innerHTML = data.name;
